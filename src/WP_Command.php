@@ -33,10 +33,15 @@ class WP_Command extends EE_Command {
 			$wp_command = 'wp ' . implode( ' ', array_slice( $args, 1 ) ) ;
 			$docker_compose_command = 'docker-compose exec --user=www-data php ' . $wp_command;
 			$site_dir = EE::get_runner()->config['sites_path'] . '/' . $site_name ;
+			$site_src_dir = $site_dir . '/app/src' ;
 
 			chdir( $site_dir );
 
 			$process = \EE::launch( $docker_compose_command, false, true );
+
+			if( !empty( $args[1] ) && $args[1] === 'db' && !empty( $args[2] ) && $args[2] === 'export' ) {
+				\EE::log( "You can find your exported file in $site_src_dir" );
+			}
 
 			\EE::log( $process->stdout );
 			\EE::log( $process->stderr );
