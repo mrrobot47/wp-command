@@ -1,0 +1,25 @@
+{
+    "name": "ee/wp-command",
+    "description": "",
+    "type": "wp-cli-package",
+    "homepage": "https://github.com/easyengine/wp-command",
+    "license": "MIT",
+    "authors": [],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        },
+        "files": [ "wp-command.php" ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "bundled": true,
+        "commands": [
+            "wp"
+        ]
+    }
+}
