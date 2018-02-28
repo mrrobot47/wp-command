@@ -48,7 +48,7 @@ class WP_Command extends EE_Command {
 		}
 
 		else {
-			EE::error( "No site with name $site_name not found." );
+			EE::error( "No site with name `$site_name` found." );
 		}
 	}
 
