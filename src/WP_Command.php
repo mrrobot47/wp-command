@@ -24,7 +24,7 @@ class WP_Command extends EE_Command {
 	 *
 	 */
 	public function __invoke( $args, $assoc_args ) {
-
+		// print_r($args);
 		$this->load_sites_from_db();
 
 		$site_name = $args[0];
@@ -39,8 +39,18 @@ class WP_Command extends EE_Command {
 
 			$process = \EE::launch( $docker_compose_command, false, true );
 
+			// if( posix_isatty(STDOUT) ) {
+			// 	echo "Woooo";
+			// }
+
+			// Check if user is running `wp db export`
 			if( !empty( $args[1] ) && $args[1] === 'db' && !empty( $args[2] ) && $args[2] === 'export' ) {
-				\EE::log( "You can find your exported file in $site_src_dir" );
+				$export_file_name = $args[3];
+
+				// If export file name is `-`, then wp-cli will redirect to STDOUT.
+				if( empty( $export_file_name ) || !empty( $export_file_name ) && $export_file_name !== '-' ) {
+					\EE::log( "You can find your exported file in $site_src_dir" );
+				}
 			}
 
 			\EE::log( $process->stdout );
