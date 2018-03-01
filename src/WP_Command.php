@@ -39,13 +39,9 @@ class WP_Command extends EE_Command {
 
 			$process = \EE::launch( $docker_compose_command, false, true );
 
-			// if( posix_isatty(STDOUT) ) {
-			// 	echo "Woooo";
-			// }
-
 			// Check if user is running `wp db export`
 			if( !empty( $args[1] ) && $args[1] === 'db' && !empty( $args[2] ) && $args[2] === 'export' ) {
-				$export_file_name = $args[3];
+				$export_file_name = !empty( $args[3] ) ? $args[3] : '' ;
 
 				// If export file name is `-`, then wp-cli will redirect to STDOUT.
 				if( empty( $export_file_name ) || !empty( $export_file_name ) && $export_file_name !== '-' ) {
@@ -53,8 +49,12 @@ class WP_Command extends EE_Command {
 				}
 			}
 
-			\EE::log( $process->stdout );
-			\EE::log( $process->stderr );
+			if( !empty( $process->stdout ) ) {
+				\EE::log( $process->stdout );
+			}
+			if( !empty( $process->stderr ) ) {
+				\EE::log( $process->stderr );
+			}
 		}
 
 		else {
