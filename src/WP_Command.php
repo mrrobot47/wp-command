@@ -47,8 +47,6 @@ class WP_Command extends EE_Command {
 
 			$process = passthru( $docker_compose_command, $return );
 
-			EE::log( print_r( $return, true ) );
-
 			// Check if user is running `wp db export`
 			if ( ! empty( $args[1] ) && $args[1] === 'db' && ! empty( $args[2] ) && $args[2] === 'export' ) {
 				$export_file_name = ! empty( $args[3] ) ? $args[3] : '';
