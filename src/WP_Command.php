@@ -13,7 +13,7 @@
 
 class WP_Command extends EE_Command {
 
-	private $sites;
+	private $db;
 
 	/**
 	 * Executes wp-cli command on a site.
@@ -25,11 +25,11 @@ class WP_Command extends EE_Command {
 	 *
 	 */
 	public function __invoke( $args, $assoc_args ) {
-		$this->load_sites_from_db();
 
+		$this->db  = EE::db();
 		$site_name = $args[0];
 
-		if ( in_array( $site_name, $this->sites ) ) {
+		if ( $this->db::site_in_db( $site_name ) ) {
 
 			$arguments = '';
 			if ( ! empty( $assoc_args ) ) {
@@ -45,7 +45,7 @@ class WP_Command extends EE_Command {
 
 			chdir( $site_dir );
 
-			$process = passthru( $docker_compose_command, $return );
+			passthru( $docker_compose_command, $return );
 
 			// Check if user is running `wp db export`
 			if ( ! empty( $args[1] ) && $args[1] === 'db' && ! empty( $args[2] ) && $args[2] === 'export' ) {
@@ -58,23 +58,6 @@ class WP_Command extends EE_Command {
 			}
 		} else {
 			EE::error( "No site with name `$site_name` found." );
-		}
-	}
-
-	/**
-	 * Stub method which will return all sites from DB in future.
-	 */
-	private function load_sites_from_db() {
-
-		$this->sites = [];
-		$runner      = EE::get_runner();
-
-		$dir = dir( $runner->config['sites_path'] );
-
-		while ( false !== ( $entry = $dir->read() ) ) {
-			if ( $entry !== '.' && $entry !== '..' ) {
-				array_push( $this->sites, $entry );
-			}
 		}
 	}
 }
