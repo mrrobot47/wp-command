@@ -1,8 +1,8 @@
 {
-    "name": "ee/wp-command",
+    "name": "mrrobot47/wp-command",
     "description": "",
     "type": "wp-cli-package",
-    "homepage": "https://github.com/easyengine/wp-command",
+    "homepage": "https://github.com/mrrobot47/wp-command",
     "license": "MIT",
     "authors": [],
     "minimum-stability": "dev",
