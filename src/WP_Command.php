@@ -38,6 +38,10 @@ class WP_Command extends EE_Command {
 				}
 			}
 
+			if ( \EE::get_runner()->config['debug'] ) {
+				$arguments .= ' --debug';
+			}
+
 			$site_dir     = EE::get_runner()->config['sites_path'] . '/' . $site_name;
 			$site_src_dir = $site_dir . '/app/src';
 
