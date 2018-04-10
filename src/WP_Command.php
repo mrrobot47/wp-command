@@ -51,8 +51,6 @@ class WP_Command extends EE_Command {
 				$file_name             = ! empty( $args[3] ) ? $args[3] : '';
 				$path_info             = pathinfo( $file_name );
 				$args[3]               = $path_info['basename'];
-				EE::debug( 'File directory: ' . $path_info['dirname'] );
-				EE::debug( 'File name: ' . $file_name );
 				if ( $site_src_dir !== $path_info['dirname'] && 'import' === $args[2] ) {
 					if ( file_exists( $file_name ) ) {
 						copy( $file_name, $site_src_dir . '/' . $path_info['basename'] );
