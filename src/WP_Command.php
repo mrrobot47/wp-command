@@ -79,7 +79,6 @@ class WP_Command extends EE_Command {
 				if ( 'import' === $args[2] ) {
 					unlink( $site_src_dir . '/' . $path_info['basename'] );
 				} else {
-					var_dump( getcwd() );
 					rename( 'app/src/' . $path_info['basename'], $file_name );
 					EE::success( "Database exported to $file_name" );
 				}
