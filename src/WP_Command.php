@@ -61,7 +61,7 @@ class WP_Command extends EE_Command {
 				if ( $site_src_dir !== $path_info['dirname'] && 'export' === $args[2] ) {
 					if ( is_dir( $path_info['dirname'] ) ) {
 						if ( '.' === $path_info['dirname'] ) {
-							$file_name = getcwd() . $file_name;
+							$file_name = getcwd() . '/' . $file_name;
 						}
 					} else {
 						\EE::error( $path_info['dirname'] . ' is not a directory.' );
@@ -80,7 +80,6 @@ class WP_Command extends EE_Command {
 					unlink( $site_src_dir . '/' . $path_info['basename'] );
 				} else {
 					rename( 'app/src/' . $path_info['basename'], $file_name );
-					EE::success( "Database exported to $file_name" );
 				}
 			}
 
