@@ -22,12 +22,12 @@ class WP_Command extends EE_Command {
 	 *
 	 * <site-name>
 	 * : Name of website.
-	 *
 	 */
 	public function __invoke( $args, $assoc_args ) {
 
-		$this->db  = EE::db();
-		$site_name = $args[0];
+		$this->db              = EE::db();
+		$site_name             = $args[0];
+		$import_export_command = false;
 
 		if ( $this->db::site_in_db( $site_name ) ) {
 
@@ -38,24 +38,51 @@ class WP_Command extends EE_Command {
 				}
 			}
 
+			if ( \EE::get_runner()->config['debug'] ) {
+				$arguments .= ' --debug';
+			}
+
+			$site_dir     = EE::get_runner()->config['sites_path'] . '/' . $site_name;
+			$site_src_dir = $site_dir . '/app/src';
+
+			// Check if user is running `wp db export or import`
+			if ( ! empty( $args[1] ) && $args[1] === 'db' && ! empty( $args[2] ) && ( $args[2] === 'export' || $args[2] === 'import' ) ) {
+				$import_export_command = true;
+				$file_name             = ! empty( $args[3] ) ? $args[3] : '';
+				$path_info             = pathinfo( $file_name );
+				$args[3]               = $path_info['basename'];
+				if ( $site_src_dir !== $path_info['dirname'] && 'import' === $args[2] ) {
+					if ( file_exists( $file_name ) ) {
+						copy( $file_name, $site_src_dir . '/' . $path_info['basename'] );
+					} else {
+						\EE::error( "$file_name does not exist." );
+					}
+				}
+				if ( $site_src_dir !== $path_info['dirname'] && 'export' === $args[2] ) {
+					if ( is_dir( $path_info['dirname'] ) ) {
+						if ( '.' === $path_info['dirname'] ) {
+							$file_name = getcwd() . '/' . $file_name;
+						}
+					} else {
+						\EE::error( $path_info['dirname'] . ' is not a directory.' );
+					}
+				}
+			}
+
 			$wp_command             = 'wp ' . implode( ' ', array_slice( $args, 1 ) ) . $arguments;
 			$docker_compose_command = 'docker-compose exec --user=www-data php ' . $wp_command;
-			$site_dir               = EE::get_runner()->config['sites_path'] . '/' . $site_name;
-			$site_src_dir           = $site_dir . '/app/src';
 
 			chdir( $site_dir );
 
 			passthru( $docker_compose_command, $return );
-
-			// Check if user is running `wp db export`
-			if ( ! empty( $args[1] ) && $args[1] === 'db' && ! empty( $args[2] ) && $args[2] === 'export' ) {
-				$export_file_name = ! empty( $args[3] ) ? $args[3] : '';
-
-				// If export file name is `-`, then wp-cli will redirect to STDOUT.
-				if ( empty( $export_file_name ) || ! empty( $export_file_name ) && $export_file_name !== '-' ) {
-					\EE::log( "You can find your exported file in $site_src_dir" );
+			if ( $import_export_command ) {
+				if ( 'import' === $args[2] ) {
+					unlink( $site_src_dir . '/' . $path_info['basename'] );
+				} else {
+					rename( 'app/src/' . $path_info['basename'], $file_name );
 				}
 			}
+
 		} else {
 			EE::error( "No site with name `$site_name` found." );
 		}
