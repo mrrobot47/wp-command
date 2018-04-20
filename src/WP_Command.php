@@ -70,7 +70,7 @@ class WP_Command extends EE_Command {
 			}
 
 			$wp_command             = 'wp ' . implode( ' ', array_slice( $args, 1 ) ) . $arguments;
-			$docker_compose_command = 'docker-compose exec --user=www-data php ' . $wp_command;
+			$docker_compose_command = "docker-compose exec --user=www-data php /bin/bash -c '" . $wp_command . "'";
 
 			chdir( $site_dir );
 
