@@ -30,7 +30,9 @@ class WP_Command extends EE_Command {
 		$import_export_command = false;
 
 		if ( $this->db::site_in_db( $site_name ) ) {
-
+			if ( ! $this->db::select( array( 'is_enabled' ), array( 'sitename' => $site_name ) )[0]['is_enabled'] ) {
+				EE::error( "Please enable $site_name using `ee site enable $site_name` command to run wp commands." );
+			}
 			$arguments = '';
 			if ( ! empty( $assoc_args ) ) {
 				foreach ( $assoc_args as $key => $value ) {
