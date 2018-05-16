@@ -11,6 +11,8 @@
  * @package ee-cli
  */
 
+use EE\Utils;
+
 class WP_Command extends EE_Command {
 
 	private $db;
@@ -50,9 +52,15 @@ class WP_Command extends EE_Command {
 			// Check if user is running `wp db export or import`
 			if ( ! empty( $args[1] ) && $args[1] === 'db' && ! empty( $args[2] ) && ( $args[2] === 'export' || $args[2] === 'import' ) ) {
 				$import_export_command = true;
-				$file_name             = ! empty( $args[3] ) ? $args[3] : '';
-				$path_info             = pathinfo( $file_name );
-				$args[3]               = $path_info['basename'];
+				if ( isset( $args[3] ) && ! @is_dir( $args[3] ) ) {
+					$file_name = $args[3];
+				} else {
+					$hash          = substr( md5( mt_rand() ), 0, 7 );
+					$gen_file_name = sprintf( '%s-%s-%s.sql', implode( '_', explode( '.', $site_name ) ), date( 'Y-m-d' ), $hash );
+					$file_name     = @is_dir( $args[3] ) ? \EE\Utils\trailingslashit( $args[3] ) . $gen_file_name : $gen_file_name;
+				}
+				$path_info = pathinfo( $file_name );
+				$args[3]   = $path_info['basename'];
 				if ( $site_src_dir !== $path_info['dirname'] && 'import' === $args[2] ) {
 					if ( file_exists( $file_name ) ) {
 						copy( $file_name, $site_src_dir . '/' . $path_info['basename'] );
@@ -62,9 +70,7 @@ class WP_Command extends EE_Command {
 				}
 				if ( $site_src_dir !== $path_info['dirname'] && 'export' === $args[2] ) {
 					if ( is_dir( $path_info['dirname'] ) ) {
-						if ( '.' === $path_info['dirname'] ) {
-							$file_name = getcwd() . '/' . $file_name;
-						}
+						$file_name = \EE\Utils\trailingslashit( realpath( $path_info['dirname'] ) ) . $path_info['basename'];
 					} else {
 						\EE::error( $path_info['dirname'] . ' is not a directory.' );
 					}
@@ -82,6 +88,7 @@ class WP_Command extends EE_Command {
 					unlink( $site_src_dir . '/' . $path_info['basename'] );
 				} else {
 					rename( 'app/src/' . $path_info['basename'], $file_name );
+					EE::success( "Path: $file_name" );
 				}
 			}
 
