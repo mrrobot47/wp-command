@@ -82,7 +82,15 @@ class WP_Command extends EE_Command {
 
 			chdir( $site_dir );
 
-			passthru( $docker_compose_command, $return );
+			while ( @ ob_end_flush() );
+
+			$proc = popen( $docker_compose_command, 'r' );
+
+			while ( ! feof( $proc ) ) {
+				EE::Line( fread( $proc, 4096 ) );
+				@ flush();
+			}
+
 			if ( $import_export_command ) {
 				if ( 'import' === $args[2] ) {
 					unlink( $site_src_dir . '/' . $path_info['basename'] );
@@ -95,5 +103,6 @@ class WP_Command extends EE_Command {
 		} else {
 			EE::error( "No site with name `$site_name` found." );
 		}
+		EE::debug( 'Command End: wp' );
 	}
 }
